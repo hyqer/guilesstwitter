@@ -34,52 +34,128 @@ import win32gui
 import time
 class Guiless:
 	def __init__(self,name,password):
-		self.twitter=Twitter('hyqer','111111')
+		self.twitter=Twitter(name,password)
 		self.tl=self.twitter.statuses.friends_timeline()
-		hotkey={'hotkey' : win32con.MOD_CONTROL|win32con.MOD_SHIFT, 'modifiers': ord('N')}
+		hotkey={'hotkey' : win32con.MOD_CONTROL|win32con.MOD_SHIFT, 'modifiers': win32con.VK_DOWN}
 		key1 = KeyHook(hotkey)
-		hotkey={'hotkey' : win32con.MOD_CONTROL|win32con.MOD_SHIFT, 'modifiers': ord('P')}
+		hotkey={'hotkey' : win32con.MOD_CONTROL|win32con.MOD_SHIFT, 'modifiers': win32con.VK_UP}
 		key2 = KeyHook(hotkey)
 		hotkey={'hotkey' : win32con.MOD_CONTROL|win32con.MOD_SHIFT, 'modifiers': ord('R')}
 		key3 = KeyHook(hotkey)
 		hotkey={'hotkey' : win32con.MOD_CONTROL|win32con.MOD_SHIFT, 'modifiers': ord('Z')}
 		key4 = KeyHook(hotkey)
 		hotkey={'hotkey' : win32con.MOD_CONTROL|win32con.MOD_SHIFT, 'modifiers': ord('C')}
-		key4 = KeyHook(hotkey)
+		key5 = KeyHook(hotkey)
+		hotkey={'hotkey' : win32con.MOD_CONTROL|win32con.MOD_SHIFT, 'modifiers': win32con.VK_RIGHT}
+		key6 = KeyHook(hotkey)
+		hotkey={'hotkey' : win32con.MOD_CONTROL|win32con.MOD_SHIFT, 'modifiers': win32con.VK_LEFT}
+		key7 = KeyHook(hotkey)
 		self.index=0
-	def show_next():
-		print "next"
+		self.hLast = win32gui.GetForegroundWindow()
+		self.sLast = win32gui.GetWindowText(self.hLast)
+		win32gui.SetWindowText(self.hLast,self.tl[0]['user']['screen_name']+":"+self.tl[0]['text'])
+		self.pos = 0
+		self.page = 1
+	def show_next(self):
+		if(self.index+1<len(self.tl)):
+			self.index+=1
+		else:
+			self.page += 1
+			newpg = self.twitter.statuses.friends_timeline(page=self.page)
+			#print len(newpg)
+			if len(newpg)==0:
+				return
+			else:
+				self.tl = self.tl+newpg
+				self.index+=1
+				
+		self.pos = 0
+		self.show_tweet()
+		#print "next"
 	
+	def show_tweet(self):
+		hTop=win32gui.GetForegroundWindow()
+		if hTop != self.hLast:
+			if win32gui.IsWindow(self.hLast):
+				win32gui.SetWindowText(self.hLast,self.sLast)
+			self.hLast = hTop
+			self.sLast = win32gui.GetWindowText(self.hLast)
+		#print "index",self.index,"len",len(self.tl)
+		win32gui.SetWindowText(hTop,self.tl[self.index]['user']['screen_name']+":"+self.tl[self.index]['text'][self.pos:])
+	def show_prev(self):
+		if(self.index>0):
+			self.index-=1
+		else:
+			return
+		self.pos = 0
+		self.show_tweet()
+		#print "prev"
 
-	def show_prev():
-		print "prev"
+	def refresh(self):
+		self.tl = self.twitter.statuses.friends_timeline()
+		self.index=0
+		self.pos = 0
+		self.page = 1
+		self.show_tweet()
+		#print "refresh"
 
-	def refresh():
-		print "refresh"
-
-	def restore():
-		print "restore"
+	def restore(self):
+		if win32gui.IsWindow(self.hLast):
+			win32gui.SetWindowText(self.hLast,self.sLast)
+	def more(self):
+		if((self.pos+1)<len(self.tl[self.index]['text'])):
+			self.pos +=1
+			self.show_tweet()
+	def less(self):
+		if(self.pos>0):
+			self.pos -=1
+			self.show_tweet()
 
 
 
 
 #hTop=win32gui.GetForegroundWindow()
-#twitter=Twitter('hyqer','111111')
+#twitter=Twitter('','')
 #tl=twitter.statuses.friends_timeline()
 #for a in range(len(tl)):print tl[a]['user']['screen_name'],":",tl[a]['text']
 #conf={"update_to":"title"}
 
 #if hTop>0:
 #	win32gui.SetWindowText(hTop,tl[a]['user']['screen_name']+":"+tl[a]['text'])
-t=Guiless('hyqer','111111')
+from getpass import getpass
+if len(sys.argv)<2:
+	print "usage:%s <usrname>"%sys.argv[0]
+	sys.exit()
+pas = getpass("Twitter password: ")
+gui=Guiless(sys.argv[1],pas)
+
+
 from ctypes import wintypes
 msg = wintypes.MSG()
 lpmsg = ctypes.byref(msg)
 user32 = ctypes.windll.user32
 while user32.GetMessageW(lpmsg, 0, 0, 0):
 	if (msg.message == win32con.WM_HOTKEY):
-		print "WM_HOTKEY received\n"  
-		break
+		#print "WM_HOTKEY received\n"
+		#print "wParam", msg.wParam
+		#print "lParam", msg.lParam
+		#print "time", msg.time
+		#print "pt", msg.pt
+		if msg.wParam == 1002:#NPRZCML
+			gui.show_next()
+		if msg.wParam == 1003:
+			gui.show_prev()
+		if msg.wParam == 1004:
+			gui.refresh()
+		if msg.wParam == 1005:
+			gui.restore()
+		if msg.wParam == 1006:
+			gui.restore()
+			break
+		if msg.wParam == 1007:
+			gui.more()
+		if msg.wParam == 1008:
+			gui.less()
 
 
 
@@ -87,8 +163,7 @@ while user32.GetMessageW(lpmsg, 0, 0, 0):
 
 
 
-from getpass import getpass
-getpass("press enter to exit.")
+print "bye."
 
 
 
@@ -96,7 +171,7 @@ getpass("press enter to exit.")
 
 
 #hTop=win32gui.GetForegroundWindow()
-#twitter=Twitter('hyqer','111111')
+#twitter=Twitter('','')
 #tl=twitter.statuses.friends_timeline()
 #for a in range(len(tl)):print tl[a]['user']['screen_name'],":",tl[a]['text']
 #conf={"update_to":"title"}
