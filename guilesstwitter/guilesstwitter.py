@@ -33,8 +33,8 @@ from twitter import *
 import win32gui
 import time
 class Guiless:
-	def __init__(self,name,password):
-		self.twitter=Twitter(name,password)
+	def __init__(self,name,password,domain="twitter.com"):
+		self.twitter=Twitter(name,password,domain=domain)
 		self.tl=self.twitter.statuses.friends_timeline()
 		hotkey={'hotkey' : win32con.MOD_CONTROL|win32con.MOD_SHIFT, 'modifiers': win32con.VK_DOWN}
 		key1 = KeyHook(hotkey)
@@ -127,8 +127,8 @@ if len(sys.argv)<2:
 	print "usage:%s <usrname>"%sys.argv[0]
 	sys.exit()
 pas = getpass("Twitter password: ")
-gui=Guiless(sys.argv[1],pas)
-
+gui=Guiless(sys.argv[1],pas,domain="heix.pp.ru/api")
+#search 'Twitter API proxy list' to find more
 
 from ctypes import wintypes
 msg = wintypes.MSG()
