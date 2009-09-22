@@ -1,6 +1,7 @@
 import sys
 import win32con
 import ctypes
+import re,os
 keyid=1002
 class KeyHook:
     '''Key hook to catch global Hotkey.
@@ -50,6 +51,8 @@ class Guiless:
 		key6 = KeyHook(hotkey)
 		hotkey={'hotkey' : win32con.MOD_CONTROL|win32con.MOD_SHIFT, 'modifiers': win32con.VK_LEFT}
 		key7 = KeyHook(hotkey)
+		hotkey={'hotkey' : win32con.MOD_CONTROL|win32con.MOD_SHIFT, 'modifiers': ord('O')}
+		KeyHook(hotkey)
 		self.index=0
 		self.hLast = win32gui.GetForegroundWindow()
 		self.sLast = win32gui.GetWindowText(self.hLast)
@@ -110,6 +113,11 @@ class Guiless:
 		if(self.pos>0):
 			self.pos -=1
 			self.show_tweet()
+	def open_url(self):
+		url_pat = re.compile(r'[a-zA-z]+://[^\s]*')
+		urls=url_pat.findall(self.tl[self.index]['text'])
+		for url in urls:
+			os.system("start "+url)
 
 
 
@@ -156,6 +164,8 @@ while user32.GetMessageW(lpmsg, 0, 0, 0):
 			gui.more()
 		if msg.wParam == 1008:
 			gui.less()
+		if msg.wParam == 1009:
+			gui.open_url()
 
 
 
