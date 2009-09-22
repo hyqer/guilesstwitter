@@ -135,7 +135,7 @@ if len(sys.argv)<2:
 	print "usage:%s <usrname>"%sys.argv[0]
 	sys.exit()
 pas = getpass("Twitter password: ")
-gui=Guiless(sys.argv[1],pas,domain="heix.pp.ru/api")
+gui=Guiless(sys.argv[1],pas,domain="javatweet.appspot.com/api")
 #search 'Twitter API proxy list' to find more
 
 from ctypes import wintypes
