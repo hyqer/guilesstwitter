@@ -84,7 +84,7 @@ class Guiless:
 			self.hLast = hTop
 			self.sLast = win32gui.GetWindowText(self.hLast)
 		#print "index",self.index,"len",len(self.tl)
-		win32gui.SetWindowText(hTop,self.tl[self.index]['user']['screen_name']+":"+self.tl[self.index]['text'][self.pos:])
+		win32gui.SetWindowText(hTop,self.tl[self.index]['user']['screen_name']+":"+self.tl[self.index]['text'][self.pos:].replace("\n",' '))
 	def show_prev(self):
 		if(self.index>0):
 			self.index-=1
