@@ -132,8 +132,9 @@ class Guiless:
 #	win32gui.SetWindowText(hTop,tl[a]['user']['screen_name']+":"+tl[a]['text'])
 from getpass import getpass
 if len(sys.argv)<2:
-	print "usage:%s <usrname>"%sys.argv[0]
-	sys.exit()
+	#print "usage:%s <usrname>"%sys.argv[0]
+	#sys.exit()
+	sys.argv.append(raw_input("input you twitter account:"))
 pas = getpass("Twitter password: ")
 gui=Guiless(sys.argv[1],pas,domain="javatweet.appspot.com/api")
 #search 'Twitter API proxy list' to find more
